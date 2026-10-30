@@ -1,0 +1,140 @@
+:root {
+    --my-black: rgb(26, 26, 26);
+    --my-darkgray: rgb(227, 222, 212);
+    --my-gray: rgb(240, 236, 228);
+    --my-lightgray: rgb(253, 251, 247);
+    --my-red: rgb(235, 64, 52);
+    --my-yellow: rgb(245, 171, 0);
+    --my-green: rgb(46, 184, 92);
+}
+:root.dark {
+    --my-black: rgb(255, 255, 255);
+    --my-darkgray: rgb(44, 48, 56);
+    --my-gray: rgb(33, 37, 43);
+    --my-lightgray: rgb(22, 24, 29);
+    --my-red: rgb(255, 92, 80);
+    --my-yellow: rgb(255, 193, 7);
+    --my-green: rgb(68, 214, 112);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.container {
+    display: grid;
+    grid-template-rows: 8rem 1fr;
+    grid-template-columns: 1fr 32rem 1fr;
+
+    color: var(--my-black);
+
+    min-height: 100vh;
+    background-color: var(--my-lightgray);
+}
+
+.heading {
+    grid-area: 1 / 1 / 2 / 4;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: var(--my-lightgray);
+}
+.title {
+    font-size: 3rem;
+}
+
+.main {
+    grid-area: 2 / 2 / 3 / 3;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: column;
+    gap: 0.5rem;
+}
+
+button {
+    color: var(--my-black);
+}
+
+.settings {
+    display: flex;
+    justify-content: space-between;
+}
+.difficulty-button {
+    background-color: var(--my-darkgray);
+    border-color: var(--my-darkgray);
+    
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+}
+.symbol-button {
+    background-color: var(--my-darkgray);
+    border-color: var(--my-darkgray);
+    
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+}
+
+.results {
+    display: flex;
+    justify-content: space-between;
+}
+.result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    margin: 1.5rem 0.3rem 0rem 0.3rem;
+}
+.result-title {
+    font-size: 1rem;
+}
+.result-value {
+    font-size: 2rem;
+    font-weight: bold;
+}
+#result-win {
+    color: var(--my-green);
+}
+#result-draw {
+    color: var(--my-yellow);
+}
+#result-lose {
+    color: var(--my-red);
+}
+
+.status {
+    text-align: center;
+    font-size: 0.9rem;
+
+    margin: 1rem;
+}
+
+.board {
+    aspect-ratio: 1 / 1; /* ALSO TEMP I THINK */
+    width: 100%;
+
+    background-color: var(--my-gray); /* TEMP */
+}
+
+.restart {
+    display: flex;
+    justify-content: center;
+}
+.restart-button {
+    background-color: var(--my-darkgray);
+    border-color: var(--my-darkgray);
+    
+    font-size: 0.9rem;
+    padding: 0.3rem;
+    margin: 1rem;
+}
+
+/* NOTE TO SELF: FIX LAYOUT FOR MOBILE ONE DAY */
