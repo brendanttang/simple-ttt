@@ -1,5 +1,6 @@
 :root {
     --my-black: rgb(26, 26, 26);
+    --my-darkergray: rgb(210, 204, 192);
     --my-darkgray: rgb(227, 222, 212);
     --my-gray: rgb(240, 236, 228);
     --my-lightgray: rgb(253, 251, 247);
@@ -9,6 +10,7 @@
 }
 :root.dark {
     --my-black: rgb(255, 255, 255);
+    --my-darkergray: rgb(30, 34, 40);
     --my-darkgray: rgb(44, 48, 56);
     --my-gray: rgb(33, 37, 43);
     --my-lightgray: rgb(22, 24, 29);
@@ -36,6 +38,54 @@
     background-color: var(--my-lightgray);
 }
 
+button {
+    color: var(--my-black);
+    cursor: pointer;
+
+    background-color: var(--my-darkgray);
+    border-color: var(--my-darkgray);
+}
+
+@media (hover: hover) {
+    button:hover {
+        background-color: var(--my-darkergray);
+        border-color: var(--my-darkergray);
+        transform: scale(1.03);
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+}
+
+.theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.75rem;
+    height: 2.75rem;
+}
+
+.theme-toggle:hover {
+    transform: scale(1.05);
+}
+
+:root .sun-icon {
+    display: none;
+}
+:root .moon-icon {
+    display: block;
+}
+
+:root.dark .sun-icon {
+    display: block;
+}
+:root.dark .moon-icon {
+    display: none;
+}
+
 .heading {
     grid-area: 1 / 1 / 2 / 4;
     
@@ -59,25 +109,15 @@
     gap: 0.5rem;
 }
 
-button {
-    color: var(--my-black);
-}
-
 .settings {
     display: flex;
     justify-content: space-between;
 }
 .difficulty-button {
-    background-color: var(--my-darkgray);
-    border-color: var(--my-darkgray);
-    
     font-size: 0.9rem;
     padding: 0.5rem 0.8rem;
 }
 .symbol-button {
-    background-color: var(--my-darkgray);
-    border-color: var(--my-darkgray);
-    
     font-size: 0.9rem;
     padding: 0.5rem 0.8rem;
 }
@@ -129,9 +169,6 @@ button {
     justify-content: center;
 }
 .restart-button {
-    background-color: var(--my-darkgray);
-    border-color: var(--my-darkgray);
-    
     font-size: 0.9rem;
     padding: 0.3rem;
     margin: 1rem;
