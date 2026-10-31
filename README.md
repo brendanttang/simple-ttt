@@ -11,6 +11,9 @@ A very simple Tic-Tac-Toe web application for **single player**.
   - Impossible: CPU will play optimally (please see callout below)
 - Tracks session results
 
+> [!IMPORTANT]
+> There is currently an error in the logic for the 'impossible' difficulty, so it is currently **not** optimal and easily beatable.
+
 ## Screenshots:
 <p align="center">
   <img src="screenshots/ss-light.png" width="49%" />
