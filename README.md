@@ -7,7 +7,12 @@ A very simple Tic-Tac-Toe web application for **single player**.
 - Play as 'x' (first) or 'o' (second)
 - Three levels of difficulty for the CPU
   - Easy: CPU makes random moves
-  - Hard: CPU will play/block a "win in 1"
+  - Hard: CPU will prioritize: 
+    1. win
+    2. block win
+    3. take center
+    4. take corners
+    5. take edges
   - Impossible: CPU will play optimally (please see callout below)
 - Tracks session results
 

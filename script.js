@@ -150,7 +150,7 @@ function computerMove() {
             space = randomOf(openSpaces());
             break;
         case 1: // hard: wins or blocks a win if possible
-            space = winSpace(compSymbol) ?? winSpace(game.symbol) ?? randomOf(openSpaces());
+            space = winSpace(compSymbol) ?? winSpace(game.symbol) ?? preferredMove();
             break;
         case 2: // impossible: optimal play
             space = bestMove(compSymbol);
@@ -210,51 +210,21 @@ function randomOf(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
-// impossible mode logic begins here, can't use wincon sums :(
-
 const corners = [0, 2, 6, 8];
 const sides = [1, 3, 5, 7];
 
-function forkSpaces(symbol) {
-    const counts = new Map();
-    for (const line of game.winconLines) {
-        const marks = line.map(s => game.board[s]);
-        const mine = marks.filter(m => m === symbol).length;
-        const empty = marks.filter(m => m === 0).length;
-        if (mine === 1 && empty === 2) {
-            for (const s of line) {
-                if (game.board[s] === 0) counts.set(s, (counts.get(s) || 0) + 1);
-            }
-        }
-    }
-    return [...counts].filter(([, n]) => n >= 2).map(([s]) => s);
-}
-
-function blockFork(opp) {
-    const forks = forkSpaces(opp);
-    if (forks.length === 0) return null;
-    if (forks.length === 1) return forks[0];
-    return openSpaces().find(s => sides.includes(s)) ?? null;
-}
-
-function oppositeCorner(opp) {
-    for (const c of corners) {
-        if (game.board[c] === opp && game.board[8 - c] === 0) return 8 - c;
-    }
-    return null;
-}
-
-function bestMove(me) {
-    const opp = -me;
+function preferredMove() {
     const open = openSpaces();
-    return winSpace(me)
-        ?? winSpace(opp)
-        ?? forkSpaces(me)[0]
-        ?? blockFork(opp)
-        ?? (game.board[4] === 0 ? 4 : null)
-        ?? oppositeCorner(opp)
-        ?? open.find(s => corners.includes(s))
-        ?? open.find(s => sides.includes(s));
+    return (game.board[4] === 0 ? 4 : null)
+        ?? randomOf(open.filter(s => corners.includes(s)))
+        ?? randomOf(open.filter(s => sides.includes(s))) 
+        // center > corners > sides
+}
+
+// impossible mode logic begins here
+
+function boardWinner(board) {
+    for (const [a, b, c] of game.winconLines)
 }
 
 // impossible mode logic ends here
