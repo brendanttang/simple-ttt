@@ -248,26 +248,41 @@ function minimax(board, turn, me, depth) {
     return turn === me ? Math.max(...scores) : Math.min(...scores);
 }
 
+// number of safe replies the user can make that won't result in win for 'me'
+function safeReplies(board, me) {
+    if (boardWinner(board) === me) return 0;
+    let safe = 0;
+    for (let j = 0; j < 9; j++) {
+        if (board[j] === 0) {
+            board[j] = -me;
+            if (minimax(board, me, me, 2) <= 0) safe++; 
+            board[j] = 0;
+        } 
+    }
+    return safe;
+}
+
 // picks any of the equally best moves
 function bestMove(me) {
     const board = [...game.board];
-    let best = -Infinity;
-    let moves = [];
+    const options = [];
     for (const i of openSpaces()) {
         board[i] = me;
         const score = minimax(board, -me, me, 1);
+        options.push({space: i, score, safe: safeReplies(board, me)});
         board[i] = 0;
-        if (score > best) {
-            best = score;
-            moves = [i];
-        }
-        else if (score === best) {
-            moves.push(i)
-        }
     }
-    return (moves.includes(4) ? 4 : null)
-        ?? randomOf(moves.filter(s => corners.includes(s)))
-        ?? randomOf(moves.filter(s => sides.includes(s)));
+    // keep only moves with best outcome
+    const outcome = o => Math.sign(o.score);
+    const bestOutcome = Math.max(...options.map(outcome));
+    let pool = options.filter(o => outcome(o) === bestOutcome);
+    // minimize safe replies (as we want user to make a mistake, ttt is solved so we only win if user is bad & unlucky)
+    const fewest = Math.min(...pool.map(o => o.safe));
+    pool = pool.filter(o => o.safe === fewest);
+    // choose fastest win
+    const topScore = Math.max(...pool.map(o => o.score));
+    pool = pool.filter(o => o.score === topScore);
+    return randomOf(pool).space;
 }
 
 // impossible mode logic ends here --------------------
