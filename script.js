@@ -1,6 +1,3 @@
-// sleep function
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 // theme toggle button
 document.getElementById("theme-toggle").addEventListener("click", () => {
     document.documentElement.classList.toggle("dark");
@@ -11,6 +8,9 @@ document.getElementById("theme-toggle").addEventListener("click", () => {
 const game = {
     difficulty: 1,
     symbol: 1,
+    turn: 1,
+    over: false,
+    timer: null,
     board: [
         0, 0, 0,
         0, 0, 0,
@@ -25,7 +25,8 @@ const game = {
         [0, 1, 2], [3, 4, 5], [6, 7, 8],
         [0, 3, 6], [1, 4, 7], [2, 5, 8],
         [0, 4, 8], [2, 4, 6]
-    ]
+    ],
+    scores: {win: 0, draw: 0, lose: 0}
 };
 
 // difficulty toggle buttons
@@ -45,18 +46,18 @@ difficulties.forEach((difficulty, index) => {
 // your symbol buttons
 // X: +1, O: -1
 const symbols = [
-    "X",
-    "O"
+    {id: "X", value: 1},
+    {id: "O", value: -1}
 ];
-symbols.forEach((symbol, index) => {
-    document.getElementById(`${symbol}-button`).addEventListener("click", () => {
-        game.symbol = index;
+symbols.forEach(({id, value}) => {
+    document.getElementById(`${id}-button`).addEventListener("click", () => {
+        game.symbol = value;
         newGame();
     });
 });
 
 // runs the game
-async function newGame() {
+function newGame() {
     // reset board, wincon
     game.board = [
         0, 0, 0,
@@ -68,86 +69,94 @@ async function newGame() {
         0, 0, 0,
         0, 0
     ]
-    // computer plays first move, if needed
-    if (game.symbol == -1) {
-        computerMove();
+    // reset some more stuff
+    game.turn = 1;
+    game.over = false;
+    boardDisplay.render();
+    nextTurn();
+}
+
+// decides what happens based on whose turn it is
+function nextTurn() {
+    if (game.turn === game.symbol) {
+        setStatus("Your turn");
     }
-    // begin taking turns, user first
-    while (true) {
-        // [TEMP] update status text: user turn
-        // [TEMP] wait until the user goes
-        // [TEMP] update status text: cpu turn
-        await sleep(500 + Math.random() * 250)
-        computerMove(); // computer plays a move, if possible
+    else {
+        setStatus("CPU is thinking...");
+        game.timer = setTimeout(computerMove, 500 + Math.random() * 250);
     }
+}
+
+// called by clicking on a cell
+function playerMove(space) {
+    if (game.over) return;
+    if (game.turn !== game.symbol) return;
+    if (game.board[space] !== 0) return;
+    makeMove(space, game.symbol);
+    endTurn();
+}
+
+// some stuff to check after a turn happens
+function endTurn() {
+    boardDisplay.render();
+    const result = checkResult();
+    if (result !== null) {
+        finishGame(result);
+        return;
+    }
+    game.turn *= -1;
+    nextTurn();
+}
+
+// post-game
+function finishGame(result) {
+    game.over = true;
+    let key, message;
+    if (result === 0) {key = "draw"; message = "It's a draw!";}
+    else if (result === game.symbol) {key = "win"; message = "You win!";}
+    else {key = "lose"; message = "CPU wins!";}
+    game.scores[key]++;
+    document.getElementById(`result-${key}`).textContent = game.scores[key];
+    setStatus(message);
 }
 
 // computer makes a move
 function computerMove() {
-    const openLength = openSpaces().length;
-    const compSymbol = -1 * game.symbol;
+    const compSymbol = -game.symbol;
+    let space;
     switch (game.difficulty) {
-        case 0: // easy difficulty will make random moves
-            makeMove(openLength * Math.random(), compSymbol);
+        case 0: // easy: random
+            space = randomOf(openSpaces());
             break;
-        case 1: // hard difficulty will make or block a winning move, if possible
-            if (winSpace(compSymbol) != null) { // valid win
-                makeMove(winSpace(compSymbol), compSymbol)
-            }
-            else if (winSpace(game.symbol) != null) { // valid block
-                makeMove(winSpace(game.symbol), compSymbol)
-            }
-            else { // random move
-                makeMove(openLength * Math.random(), compSymbol);
-            }
+        case 1: // hard: wins or blocks a win if possible
+            space = winSpace(compSymbol) ?? winSpace(game.symbol) ?? randomOf(openSpaces());
             break;
-        /* case 2: // impossible difficulty will play optimally 
-            if (winSpace(compSymbol) != null) { // WIN
-                makeMove(winSpace(compSymbol), compSymbol)
-            }
-            else if (winSpace(game.symbol) != null) { // BLOCK
-                makeMove(winSpace(game.symbol), compSymbol)
-            }
-            else if () { // FORK
-                // [TEMP] a fork can be made if two intersecting winconLines are both equal to symbol, and their shared space is OPEN. this space is what must be played to create a fork
-            }
-            else if () { // BLOCK FORK
-
-            }
-            else if () { // CENTER
-
-            }
-            else if () { // OPPOSITE CORNER
-
-            }
-            else if () { // EMPTY CORNER
-
-            }
-            else if () { // EMPTY SIDE
-
-            }
-            break; */ 
+        case 2: // impossible: optimal play
+            space = bestMove(compSymbol);
+            break;
     }
+    makeMove(space, compSymbol);
+    endTurn();
 }
 
 // returns the indices of open spaces
 function openSpaces() {
-    freeSpaces = [];
-    for (const index of game.board) {
-        if (game.board[index] == 0) {
-            freeSpaces.push(index);
+    const free = [];
+    for (let i = 0; i < game.board.length; i++) {
+        if (game.board[i] === 0) {
+            free.push(i);
         }
     }
-    return freeSpaces;
+    return free;
 }
 
 // returns the index which will result in a win for 'symbol', if possible
 function winSpace(symbol) {
-    const almostWincon = 2 * symbol;
-    for (const index of game.wincon) {
-        if (game.wincon[index] == almostWincon) {
-            for (const space of game.winconLines[index]) {
-                if (openSpaces().includes(space)) {
+    const target = 2 * symbol;
+    for (let i = 0; i < game.wincon.length; i++) {
+        if (game.wincon[i] === target) {
+            for (const space of game.winconLines[i]) {
+                if (game.board[space] === 0) {
                     return space;
                 }
             }
@@ -169,25 +178,102 @@ function winner() {
     }
 }
 
+function checkResult() {
+    const w = winner();
+    if (w !== null) return w;
+    if (openSpaces().length === 0) return 0;
+    return null;
+}
+
+function randomOf(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+// impossible mode logic begins here, can't use wincon sums :(
+
+const corners = [0, 2, 6, 8];
+const sides = [1, 3, 5, 7];
+
+function forkSpaces(symbol) {
+    const counts = new Map();
+    for (const line of game.winconLines) {
+        const marks = line.map(s => game.board[s]);
+        const mine = marks.filter(m => m === symbol).length;
+        const empty = marks.filter(m => m === 0).length;
+        if (mine === 1 && empty === 2) {
+            for (const s of line) {
+                if (game.board[s] === 0) counts.set(s, (counts.get(s) || 0) + 1);
+            }
+        }
+    }
+    return [...counts].filter(([, n]) => n >= 2).map(([s]) => s);
+}
+
+function blockFork(opp) {
+    const forks = forkSpaces(opp);
+    if (forks.length === 0) return null;
+    if (forks.length === 1) return forks[0];
+    return openSpaces().find(s => sides.includes(s)) ?? null;
+}
+
+function oppositeCorner(opp) {
+    for (const c of corners) {
+        if (game.board[c] === opp && game.board[8 - c] === 0) return 8 - c;
+    }
+    return null;
+}
+
+function bestMove(me) {
+    const opp = -me;
+    const open = openSpaces();
+    return winSpace(me)
+        ?? winSpace(opp)
+        ?? forkSpaces(me)[0]
+        ?? blockFork(opp)
+        ?? (game.board[4] === 0 ? 4 : null)
+        ?? oppositeCorner(opp)
+        ?? open.find(s => corners.includes(s))
+        ?? open.find(s => sides.includes(s));
+}
+
+// impossible mode logic ends here
+
 // makes a move
 function makeMove(space, symbol) {
     game.board[space] = symbol; // updates board
+    game.winconLines.forEach((line, i) => {
+        if (line.includes(space)) game.wincon[i] += symbol;
+    }); // updates wincon(s)
 }
-
-// run the game immediately when open
-newGame();
 
 // board display
 const boardDisplay = {
     boarde: document.querySelector(".board"),
+    cells: [],
     create () {
         for (let i = 0; i < 9; i++) {
             const cell = document.createElement("button");
             cell.classList.add("cell");
-            cell.id = i;
+            cell.addEventListener("click", () => playerMove(i));
             this.boarde.appendChild(cell);
+            this.cells.push(cell);
         }
+    },
+    render () {
+        this.cells.forEach((cell, i) => {
+            const v = game.board[i];
+            cell.textContent = v === 1 ? "X" : v === -1 ? "O" : "";
+        });
     }
-}
+};
 
 boardDisplay.create();
+
+function setStatus(text) {
+    document.getElementById("status-text").textContent = text;
+}
+
+// (re)start the game
+
+document.getElementById("restart-button").addEventListener("click", newGame);
+newGame();
