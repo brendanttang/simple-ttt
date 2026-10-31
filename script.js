@@ -70,6 +70,7 @@ function updateButtons() {
 
 // runs the game
 function newGame() {
+    clearTimeout(game.timer);
     // reset board, wincon
     game.board = [
         0, 0, 0,
