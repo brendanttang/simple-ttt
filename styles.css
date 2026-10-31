@@ -157,11 +157,28 @@ button {
     margin: 1rem;
 }
 
-.board {
-    aspect-ratio: 1 / 1; /* ALSO TEMP I THINK */
-    width: 100%;
+.board{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 0.5rem;
 
-    background-color: var(--my-gray); /* TEMP */
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    background-color: var(--my-lightgray); /* TEMP */
+}
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 4rem;
+    font-weight: bold;
+
+    background-color: var(--my-darkgray);
+    border-color: var(--my-darkgray);
+
+    aspect-ratio: 1 / 1;
 }
 
 .restart {
