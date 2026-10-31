@@ -163,6 +163,8 @@ button {
     grid-template-rows: repeat(3, 1fr);
     gap: 0.5rem;
 
+    position: relative;
+
     aspect-ratio: 1 / 1;
     width: 100%;
     background-color: var(--my-lightgray); /* TEMP */
@@ -171,9 +173,6 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-
-    font-size: 4rem;
-    font-weight: bold;
 
     background-color: var(--my-darkgray);
     border-color: var(--my-darkgray);
@@ -191,4 +190,44 @@ button {
     margin: 1rem;
 }
 
-/* NOTE TO SELF: FIX LAYOUT FOR MOBILE ONE DAY */
+/* show which button is active */
+.difficulty-button.active,
+.symbol-button.active {
+    text-decoration: underline;
+    -webkit-text-stroke: 0.6px currentColor;
+}
+
+/* overlay :O */
+.line-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    display: none;
+}
+.line-overlay.visible {
+    display: block;
+}
+.line-overlay line {
+    stroke-width: 10px;
+    stroke-linecap: round;
+}
+.line-overlay line.win  { stroke: var(--my-green); }
+.line-overlay line.lose { stroke: var(--my-red); }
+
+/* icons */
+.cell svg {
+    stroke-width: 8px;
+}
+.cell svg * {
+    vector-effect: non-scaling-stroke;
+}
+.cell .x-mark {
+    width: 80%;
+    height: 80%;
+}
+.cell .o-mark {
+    width: 48%;
+    height: 48%;
+}

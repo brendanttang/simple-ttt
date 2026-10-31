@@ -56,6 +56,18 @@ symbols.forEach(({id, value}) => {
     });
 });
 
+// for button bolding
+function updateButtons() {
+    difficulties.forEach((name, i) => {
+        document.getElementById(`${name}-button`)
+            .classList.toggle("active", game.difficulty === i);
+    });
+    symbols.forEach(({id, value}) => {
+        document.getElementById(`${id}-button`)
+            .classList.toggle("active", game.symbol === value);
+    });
+}
+
 // runs the game
 function newGame() {
     // reset board, wincon
@@ -72,6 +84,7 @@ function newGame() {
     // reset some more stuff
     game.turn = 1;
     game.over = false;
+    boardDisplay.hideLine();
     boardDisplay.render();
     nextTurn();
 }
@@ -115,6 +128,12 @@ function finishGame(result) {
     if (result === 0) {key = "draw"; message = "It's a draw!";}
     else if (result === game.symbol) {key = "win"; message = "You win!";}
     else {key = "lose"; message = "CPU wins!";}
+
+    if (result !== 0) {
+        const lineIndex = game.wincon.findIndex(v => Math.abs(v) === 3);
+        boardDisplay.showLine(lineIndex, key); 
+    }
+
     game.scores[key]++;
     document.getElementById(`result-${key}`).textContent = game.scores[key];
     setStatus(message);
@@ -247,23 +266,61 @@ function makeMove(space, symbol) {
 }
 
 // board display
+const svgNS = "http://www.w3.org/2000/svg";
+
+// lucide "x" and "circle"
+const icons = {
+    "1": `<svg class="x-mark" xmlns="${svgNS}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+    "-1": `<svg class="o-mark" xmlns="${svgNS}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`
+};
+
 const boardDisplay = {
-    boarde: document.querySelector(".board"),
+    boardElement: document.querySelector(".board"),
     cells: [],
-    create () {
+    overlay: null,
+    strokeLine: null,
+
+    create() {
         for (let i = 0; i < 9; i++) {
             const cell = document.createElement("button");
             cell.classList.add("cell");
             cell.addEventListener("click", () => playerMove(i));
-            this.boarde.appendChild(cell);
+            this.boardElement.appendChild(cell);
             this.cells.push(cell);
         }
+        // overlay for the winning line
+        this.overlay = document.createElementNS(svgNS, "svg");
+        this.overlay.classList.add("line-overlay");
+        this.strokeLine = document.createElementNS(svgNS, "line");
+        this.overlay.appendChild(this.strokeLine);
+        this.boardElement.appendChild(this.overlay);
     },
-    render () {
+
+    render() {
         this.cells.forEach((cell, i) => {
-            const v = game.board[i];
-            cell.textContent = v === 1 ? "X" : v === -1 ? "O" : "";
+            cell.innerHTML = icons[game.board[i]] ?? "";
         });
+    },
+
+    // lineIndex = index into winconLines, kind = "win" or "lose"
+    showLine(lineIndex, kind) {
+        const line = game.winconLines[lineIndex];
+        const start = this.cells[line[0]];
+        const end = this.cells[line[2]];
+        const w = this.boardElement.clientWidth;
+        const h = this.boardElement.clientHeight;
+        const pct = (value, total) => (value / total * 100) + "%";
+
+        this.strokeLine.setAttribute("x1", pct(start.offsetLeft + start.offsetWidth / 2, w));
+        this.strokeLine.setAttribute("y1", pct(start.offsetTop + start.offsetHeight / 2, h));
+        this.strokeLine.setAttribute("x2", pct(end.offsetLeft + end.offsetWidth / 2, w));
+        this.strokeLine.setAttribute("y2", pct(end.offsetTop + end.offsetHeight / 2, h));
+        this.strokeLine.setAttribute("class", kind);
+        this.overlay.classList.add("visible");
+    },
+
+    hideLine() {
+        this.overlay.classList.remove("visible");
     }
 };
 
@@ -276,4 +333,3 @@ function setStatus(text) {
 // (re)start the game
 
 document.getElementById("restart-button").addEventListener("click", newGame);
-newGame();
