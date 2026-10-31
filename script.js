@@ -299,7 +299,8 @@ const boardDisplay = {
 
     render() {
         this.cells.forEach((cell, i) => {
-            cell.innerHTML = icons[game.board[i]] ?? "";
+            const v = game.board[i];
+            cell.textContent = v === 1 ? "X" : v === -1 ? "O" : "";
         });
     },
 
