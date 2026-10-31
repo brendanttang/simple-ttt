@@ -31,12 +31,13 @@
 
 .container {
     display: grid;
-    grid-template-rows: 8rem 1fr;
-    grid-template-columns: 1fr 32rem 1fr;
+    grid-template-rows: auto auto;
+    align-content: center;
+    grid-template-columns: minmax(0.5rem, 1fr) minmax(0, 32rem) minmax(0.5rem, 1fr);
 
     color: var(--my-black);
 
-    min-height: 100vh;
+    min-height: 100dvh;
     background-color: var(--my-lightgray);
 }
 
@@ -94,6 +95,8 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+
+    padding: 1.5rem 0;
 
     background-color: var(--my-lightgray);
 }
@@ -221,3 +224,12 @@ button {
 }
 .line-overlay line.win  { stroke: var(--my-green); }
 .line-overlay line.lose { stroke: var(--my-red); }
+
+/* mobile fix? */
+html {
+    font-size: max(9px, min(16px, calc(100dvh / 58), calc(100vw / 33.75)));
+}
+.settings {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
