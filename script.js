@@ -221,13 +221,56 @@ function preferredMove() {
         // center > corners > sides
 }
 
-// impossible mode logic begins here
+// impossible mode logic begins here --------------------
 
+// returns the symbol that has three in a row, else 0
 function boardWinner(board) {
-    for (const [a, b, c] of game.winconLines)
+    for (const [a, b, c] of game.winconLines) {
+        const sum = board[a] + board[b] + board[c];
+        if (Math.abs(sum) === 3) return sum / 3;
+    }
+    return 0;
 }
 
-// impossible mode logic ends here
+// scoring criteria 
+function minimax(board, turn, me, depth) {
+    const w = boardWinner(board);
+    if (w !== 0) return w === me ? 10 - depth : depth - 10;
+    if (!board.includes(0)) return 0;
+    const scores = [];
+    for (let i = 0; i < 9; i++) {
+        if (board[i] === 0) {
+            board[i] = turn;
+            scores.push(minimax(board, -turn, me, depth + 1));
+            board[i] = 0;
+        }
+    }
+    return turn === me ? Math.max(...scores) : Math.min(...scores);
+}
+
+// picks any of the equally best moves
+function bestMove(me) {
+    const board = [...game.board];
+    let best = -Infinity;
+    let moves = [];
+    for (const i of openSpaces()) {
+        board[i] = me;
+        const score = minimax(board, -me, me, 1);
+        board[i] = 0;
+        if (score > best) {
+            best = score;
+            moves = [i];
+        }
+        else if (score === best) {
+            moves.push(i)
+        }
+    }
+    return (moves.includes(4) ? 4 : null)
+        ?? randomOf(moves.filter(s => corners.includes(s)))
+        ?? randomOf(moves.filter(s => sides.includes(s)));
+}
+
+// impossible mode logic ends here --------------------
 
 // makes a move
 function makeMove(space, symbol) {
