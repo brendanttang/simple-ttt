@@ -7,9 +7,10 @@
     --my-red: rgb(235, 64, 52);
     --my-yellow: rgb(245, 171, 0);
     --my-green: rgb(46, 184, 92);
+    --my-blue: rgb(217, 83, 30); /* very blue lol */
 }
 :root.dark {
-    --my-black: rgb(255, 255, 255);
+    --my-black: rgb(240, 242, 245);
     --my-darkergray: rgb(30, 34, 40);
     --my-darkgray: rgb(44, 48, 56);
     --my-gray: rgb(33, 37, 43);
@@ -17,6 +18,7 @@
     --my-red: rgb(255, 92, 80);
     --my-yellow: rgb(255, 193, 7);
     --my-green: rgb(68, 214, 112);
+    --my-blue: rgb(51, 168, 204);
 }
 
 * {
@@ -196,8 +198,9 @@ button {
 /* show which button is active */
 .difficulty-button.active,
 .symbol-button.active {
+    -webkit-text-stroke: 0.08rem currentColor;
     text-decoration: underline;
-    -webkit-text-stroke: 0.6px currentColor;
+    color: var(--my-blue);
 }
 
 /* overlay :O */

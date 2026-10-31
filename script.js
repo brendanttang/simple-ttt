@@ -87,6 +87,7 @@ function newGame() {
     game.over = false;
     boardDisplay.hideLine();
     boardDisplay.render();
+    updateButtons();
     nextTurn();
 }
 
@@ -269,12 +270,6 @@ function makeMove(space, symbol) {
 // board display
 const svgNS = "http://www.w3.org/2000/svg";
 
-// lucide "x" and "circle"
-const icons = {
-    "1": `<svg class="x-mark" xmlns="${svgNS}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
-    "-1": `<svg class="o-mark" xmlns="${svgNS}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>`
-};
-
 const boardDisplay = {
     boardElement: document.querySelector(".board"),
     cells: [],
@@ -335,3 +330,5 @@ function setStatus(text) {
 // (re)start the game
 
 document.getElementById("restart-button").addEventListener("click", newGame);
+
+newGame();
