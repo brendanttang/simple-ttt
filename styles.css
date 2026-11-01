@@ -233,3 +233,8 @@ html {
     flex-wrap: wrap;
     gap: 0.5rem;
 }
+
+/* no more scroll */
+.no-scroll {
+  overflow: hidden;
+}
