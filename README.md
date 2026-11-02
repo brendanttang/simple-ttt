@@ -21,3 +21,5 @@ A very simple Tic-Tac-Toe web application for **single player**.
   <img src="screenshots/ss-light.png" width="49%" />
   <img src="screenshots/ss-dark.png" width="49%" />
 </p>
+
+# Demo <a href="https://brendanttang.github.io/simple-ttt/">here</a>
